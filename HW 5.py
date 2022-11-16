@@ -11,15 +11,20 @@ import random as rand
 # imports the module "scipy.stats" as "stats"
 import scipy.stats as stats
 
+# imports the module plotnine
+import plotnine
 
-def bootstrap_sample(data):
+# imports the module pandas as pd
+import pandas as pd
+
+def bootstrap_sample(L):
     """
     Creates a bootstrap sample (list made with replacement from an initial list 
     of numbers
 
     Parameters
     ----------
-    data : list
+    L : list
         user-inputted list of numbers
 
     Returns
@@ -32,19 +37,19 @@ def bootstrap_sample(data):
     # creates the list "bootstrap_list" with uses the module "random" to 
     # take values from the list "data" with replacement. Takes number of values
     # equal to the length of the list "data" to keep the list lengths the same
-    bootstrap_list = rand.choices(data, k=len(data))
+    bootstrapList = rand.choices(L, k=len(L))
     
     # returns bootstrap_list
-    return bootstrap_list
+    return bootstrapList
 
-def trimmed_mean(data, area):
+def trimmed_mean(L, area):
     """
     Calculates the trimmed_mean of the bootsrap list, which is the mean of the
     list without a user-determined percentage of its lowest and highest values
 
     Parameters
     ----------
-    data : list
+    L : list
         user-inputted list of numbers
     area : float
         percentage of data to be trimmed
@@ -56,41 +61,109 @@ def trimmed_mean(data, area):
 
     """
     
-    # creates the variable "bootstrap" which is the bootstrap list obtained
+    # creates the list "bootstrap" which is the bootstrap list obtained
     # from running the function "bootstrap_sample"
-    bootstrap = bootstrap_sample(data)
+    bootstrap = bootstrap_sample(L)
     
-    trimmed_mean = stats.trim_mean(bootstrap, area)
-    return trimmed_mean
+    # creates the variable trimmedMean which trims the mean of bootstrap by 
+    # a user determined percentage "area"
+    trimmedMean = stats.trim_mean(bootstrap, area)
+    
+    # returns "trimmedMean"
+    return trimmedMean
 
-# Creates a function called "boostrap_trimmed_mean" that takes inputs
-# "data", "area", and "simulations"
-def bootstrap_trimmed_mean(data, area, simulations):
+
+def bootstrap_trimmed_mean(L, area, simulations):
+    """
+    Creates a bootstrap list for a list of trimmed means of the original 
+    bootstrap list
+
+    Parameters
+    ----------
+    L : list
+        user-inputted list of numbers
+    area : float
+        percentage of data to be trimmed
+    simulations : integer
+        Determines how many trimmed means will be calculated and appended to an
+        empty list
+
+    Returns
+    -------
+    finalbootstrap : list
+        Bootstrap list for the list of trimmed means of the original bootstrap
+        list
+
+    """
     
     # Creates an empty list called "bootstrapMeanList"
-    bootstrapMeanList = []
+    bootstrapmeanList = []
     
     # For loop tht goes from 1 to the amount of simulations+1 
     for i in range (1, simulations+1):
         
-        # Calls the "trimmed_mean" function with input parameters "data" and 
+        # Calls the "trimmed_mean" function with input parameters "L" and 
         # "area" and saves the result to a variable called "bootstrapMean"
-        bootstrapMean = trimmed_mean(data, area)
+        bootstrapMean = trimmed_mean(L, area)
         
         # Appends that "bootstrapMean" to the bootstrapMeanList
-        bootstrapMeanList.append(bootstrapMean)
+        bootstrapmeanList.append(bootstrapMean)
      
     # Calls the "bootstrap_sample" function with the "bootstrapMeanList"
     # and stores the result in "finalbootstrapMean"    
-    finalbootstrapMean = bootstrap_sample(bootstrapMeanList)
+    finalBootstrap = bootstrap_sample(bootstrapmeanList)
     
-    # Returns the finalbootstrapMean
-    return finalbootstrapMean
+    # Returns finalbootstrapMean
+    return finalBootstrap
+
+
+def bootstrap_histogram(L, area, simulations):
+    """
     
+
+    Parameters
+    ----------
+    L : list
+        user-inputted list of numbers
+    area : float
+        percentage of data to be trimmed
+    simulations : integer
+        Determines how many trimmed means will be calculated and appended to an
+        empty list
+
+    Returns
+    -------
+    p : histogram
+        Histogram of the the list of bootstrap means obtained from the function
+        "bootstrap_trimmed_mean"
+
+    """
     
-data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 18, 50, 59, 1009, 38381, 909]
-trimmed_mean(data, 0.1)
-bootstrap_trimmed_mean(data, 0.1, 10)
+    # creates the list "finalbootstrapList" which is created by calling the 
+    # function "bootstrap_trimmed_mean"
+    finalbootstrapList = bootstrap_trimmed_mean(L, area, simulations)
+    
+    # creates the variable "widths_df" which creates a data frame with 
+    # "finalbootstrapList" as the data and columns
+    widths_df = pd.DataFrame(finalbootstrapList, columns = ["finalbootstrapList"])
+    
+    # creates the histogram "p" which is a histogram of the data in the list
+    # "finalbootstrapList"
+    p = (plotnine.ggplot(data = widths_df) +
+    plotnine.aes(x = finalbootstrapList) +
+    plotnine.geom_histogram()
+    )
+    
+    # returns the histogram "p"
+    return p
+
+
+
+mydata = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 18, 50, 59]
+bootstrap_sample(mydata)
+trimmed_mean(mydata, 0.1)
+bootstrap_trimmed_mean(mydata, 0.1, 10)
+bootstrap_histogram(mydata, 0.1, 100)
 
 
     
