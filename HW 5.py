@@ -63,12 +63,28 @@ def trimmed_mean(data, area):
     trimmed_mean = stats.trim_mean(bootstrap, area)
     return trimmed_mean
 
+# Creates a function called "boostrap_trimmed_mean" that takes inputs
+# "data", "area", and "simulations"
 def bootstrap_trimmed_mean(data, area, simulations):
+    
+    # Creates an empty list called "bootstrapMeanList"
     bootstrapMeanList = []
+    
+    # For loop tht goes from 1 to the amount of simulations+1 
     for i in range (1, simulations+1):
+        
+        # Calls the "trimmed_mean" function with input parameters "data" and 
+        # "area" and saves the result to a variable called "bootstrapMean"
         bootstrapMean = trimmed_mean(data, area)
+        
+        # Appends that "bootstrapMean" to the bootstrapMeanList
         bootstrapMeanList.append(bootstrapMean)
+     
+    # Calls the "bootstrap_sample" function with the "bootstrapMeanList"
+    # and stores the result in "finalbootstrapMean"    
     finalbootstrapMean = bootstrap_sample(bootstrapMeanList)
+    
+    # Returns the finalbootstrapMean
     return finalbootstrapMean
     
     
